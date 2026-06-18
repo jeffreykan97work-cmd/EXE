@@ -23,7 +23,8 @@ jobs:
 
       - name: 下載 Playwright 瀏覽器到當前目錄
         run: |
-          $env:PLAYWRIGHT_BROWSERS_PATH="0"
+          # 【修正】明確指定當前路徑，強制產生 pw-browsers 資料夾
+          $env:PLAYWRIGHT_BROWSERS_PATH = "$pwd\pw-browsers"
           playwright install chromium
         shell: powershell
 
@@ -33,7 +34,8 @@ jobs:
 
       - name: 將瀏覽器資料夾複製到打包好的目錄中
         run: |
-          Copy-Item -Path pw-browsers -Destination dist\smg_scraper\pw-browsers -Recurse
+          # 【修正】直接將 pw-browsers 整個資料夾複製進 dist\smg_scraper 內
+          Copy-Item -Path "pw-browsers" -Destination "dist\smg_scraper" -Recurse
         shell: powershell
 
       - name: 上傳 ZIP 壓縮包供下載
