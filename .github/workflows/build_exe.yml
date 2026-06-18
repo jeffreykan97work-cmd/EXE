@@ -1,0 +1,44 @@
+name: 打包 Windows EXE 執行檔
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest 
+
+    steps:
+      - name: 下載程式碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安裝 Python 套件
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 下載 Playwright 瀏覽器到當前目錄
+        run: |
+          $env:PLAYWRIGHT_BROWSERS_PATH="0"
+          playwright install chromium
+        shell: powershell
+
+      - name: 使用 PyInstaller 打包程式
+        run: |
+          pyinstaller --noconfirm --onedir smg_scraper.py
+
+      - name: 將瀏覽器資料夾複製到打包好的目錄中
+        run: |
+          Copy-Item -Path pw-browsers -Destination dist\smg_scraper\pw-browsers -Recurse
+        shell: powershell
+
+      - name: 上傳 ZIP 壓縮包供下載
+        uses: actions/upload-artifact@v4
+        with:
+          name: SMG_Scraper_Windows_App
+          path: dist\smg_scraper
+          retention-days: 7
